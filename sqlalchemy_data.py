@@ -27,20 +27,26 @@ def create(element):
     session.commit()
     return element
 
+
 def delete(element):
     session.delete(element)
     session.commit()
+
 
 def commit_changes():
     session.commit()
 
 
 def get_evidence_by_id(evidence_id):
-    return session.query(Evidence).filter(Evidence.id==evidence_id)
+    return session.query(Evidence).filter(Evidence.id == evidence_id)
 
 
-def get_evidences_by_project(project_id):
-    return session.query(Evidence).filter(Evidence.project_id==project_id).all()
+def get_evidences_by_project_name(project_id):
+    return session.query(Evidence).filter(Evidence.project_id == project_id).all()
+
+
+def get_project_by_name(project_name):
+    return session.query(Project).filter(Project.name == project_name).one_or_none()
 
 
 def get_all_projects():
@@ -55,5 +61,3 @@ def get_all_projects():
 # project_66 = Project(name='myprojectGOOOOD',
 #                      description="my general description",
 #                      evidences=[evidence_1, evidence_2])
-
-
