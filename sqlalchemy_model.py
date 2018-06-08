@@ -9,7 +9,7 @@ Base = declarative_base()
 class Project(Base):
     __tablename__ = 'project'
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String, unique=True, nullable=False)
     description = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
     evidences = relationship('Evidence', backref='project', lazy='dynamic')
@@ -23,8 +23,8 @@ class Evidence(Base):
     __tablename__ = 'evidence'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), unique=True, nullable=False)
-    project_id    =   Column(Integer, ForeignKey('project.id'))
+    name = Column(String(255))
+    project_id = Column(Integer, ForeignKey('project.id'))
 
     def __repr__(self):
         return "<Evidence (name='%s')>" % (self.name)
@@ -46,18 +46,11 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 
-# ----------------------------
-# Create the engine
-# ----------------------------
-
-from sqlalchemy import create_engine
-
-# engine = create_engine('sqlite:///:memory:', echo=True)
-engine = create_engine('sqlite:///database/my_db.sqlite', echo=True)
+def create_database():
+    from sqlalchemy import create_engine
+    engine = create_engine('sqlite:///database/my_db.sqlite', echo=True)
+    Base.metadata.create_all(engine)
 
 
-# ----------------------------
-# Create the Schema
-# ----------------------------
-
-Base.metadata.create_all(engine)
+if __name__ == '__main__':
+    create_database()
