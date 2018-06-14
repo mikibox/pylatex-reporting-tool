@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from tkinter import Tk, Text, TOP, BOTH, X, N, LEFT, messagebox, BOTTOM
+from tkinter import Tk, Text, TOP, BOTH, X, N, LEFT, messagebox, BOTTOM, Toplevel
 from tkinter.ttk import Frame, Label, Entry, Combobox, Button
 import sqlalchemy_data as db
 from sqlalchemy_model import Evidence, Project
@@ -8,21 +8,23 @@ from sqlalchemy_model import Evidence, Project
 
 class ProjectSelector(Frame):
 
-    def __init__(self):
-        self.project_cmbx = None
-        self.frame_evidence = None
-        self.frame_footer = None
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Project-Selector")
 
-        super().__init__()
+        self.project_cmbx = None
+        self.frame_header = Frame(self.master)
+        self.frame_evidence = Frame(self.master)
+        self.frame_footer = Frame(self.master)
+
         self.initUI()
+        super().__init__()
 
     def initUI(self):
-        self.master.title("Project-Selector")
-        self.pack(fill=BOTH, expand=True)
 
         first_column_width = 15
 
-        frame1 = Frame(self)
+        frame1 = Frame(self.master)
         frame1.pack(fill=X)
 
         project_lbl = Label(frame1, text="Select Project", width=first_column_width)
@@ -33,15 +35,12 @@ class ProjectSelector(Frame):
         self.project_cmbx.bind('<<ComboboxSelected>>', self.project_selected)
         self.project_cmbx.pack(fill=X)
 
-        self.frame_evidence = Frame(self)
         self.frame_evidence.pack(fill=X)
 
-        self.frame_footer = Frame(self)
-        self.frame_footer.pack(side=BOTTOM)
-
-        bttn_new_evidence = Button(self.frame_footer, text="New Evidence")
+        bttn_new_evidence = Button(self.frame_footer, text="New Evidence", command=self.click_new_evidence)
         bttn_new_evidence.pack(side=TOP, padx=5, pady=5)
 
+        self.frame_footer.pack(side=BOTTOM)
 
     def project_selected(self, e):
         if self.project_cmbx.get():
@@ -49,13 +48,38 @@ class ProjectSelector(Frame):
             print(project)
 
         self.frame_evidence.destroy()
-        self.frame_evidence = Frame(self)
+        self.frame_evidence = Frame(self.master)
         self.frame_evidence.pack(fill=X)
 
         evidences = db.get_evidences_by_project_name(project.id)
         for evidence in evidences:
             evidence_lbl = Label(self.frame_evidence, text=evidence)
             evidence_lbl.pack(side=TOP)
+
+    def click_new_evidence(self):
+        self.ef = EvidenceWindow(Toplevel(self.master))
+
+
+class EvidenceWindow(Frame):
+
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Evidence-Selector")
+
+        self.project_cmbx = None
+        self.frame_evidence = None
+        self.frame_footer = None
+
+        self.initUI()
+        super().__init__()
+
+    def initUI(self):
+        # self.pack(fill=BOTH, expand=True)
+
+        first_column_width = 15
+
+        frame1 = Frame(self.master)
+        frame1.pack(fill=X)
 
 
 class Example(Frame):
@@ -101,7 +125,7 @@ class Example(Frame):
 def main():
     root = Tk()
     root.geometry("300x300+300+300")
-    app = ProjectSelector()
+    app = ProjectSelector(root)
     root.mainloop()
 
 
