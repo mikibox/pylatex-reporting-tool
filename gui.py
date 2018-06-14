@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from tkinter import Tk, Text, TOP, BOTH, X, N, LEFT, messagebox
-from tkinter.ttk import Frame, Label, Entry, Combobox
+from tkinter import Tk, Text, TOP, BOTH, X, N, LEFT, messagebox, BOTTOM
+from tkinter.ttk import Frame, Label, Entry, Combobox, Button
 import sqlalchemy_data as db
 from sqlalchemy_model import Evidence, Project
 
@@ -11,6 +11,7 @@ class ProjectSelector(Frame):
     def __init__(self):
         self.project_cmbx = None
         self.frame_evidence = None
+        self.frame_footer = None
 
         super().__init__()
         self.initUI()
@@ -34,6 +35,13 @@ class ProjectSelector(Frame):
 
         self.frame_evidence = Frame(self)
         self.frame_evidence.pack(fill=X)
+
+        self.frame_footer = Frame(self)
+        self.frame_footer.pack(side=BOTTOM)
+
+        bttn_new_evidence = Button(self.frame_footer, text="New Evidence")
+        bttn_new_evidence.pack(side=TOP, padx=5, pady=5)
+
 
     def project_selected(self, e):
         if self.project_cmbx.get():
