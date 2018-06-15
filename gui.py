@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from tkinter import Tk, Text, TOP, BOTH, X, N, LEFT, messagebox, BOTTOM, Toplevel
+from tkinter import Tk, Text, TOP, BOTH, X, Y, N, LEFT, messagebox, BOTTOM, Toplevel
 from tkinter.ttk import Frame, Label, Entry, Combobox, Button
 import sqlalchemy_data as db
 from sqlalchemy_model import Evidence, Project
@@ -77,23 +77,31 @@ class EvidenceWindow(Frame):
     def init_ui(self):
         first_column_width = 15
 
-        self.frame.pack(fill=X)
-
         lbl_name = Label(self.frame, text="Name", width=first_column_width)
         lbl_name.pack(side=LEFT, padx=5, pady=5)
 
         self.evidence['name'] = Entry(self.frame)
         self.evidence['name'].pack(fill=X, padx=5, expand=True)
 
+        lbl_description = Label(self.frame, text="Description", width=first_column_width)
+        lbl_description.pack(side=LEFT, padx=5, pady=5)
+
+        self.evidence['description'] = Entry(self.frame)
+        self.evidence['description'].pack(fill=X, padx=5, expand=True)
+
         bttn_create_evidence = Button(self.frame_footer, text="Create", command=self.create_incidence)
         bttn_create_evidence.pack(side=BOTTOM, padx=5, pady=5)
 
+        self.frame.pack(fill=X)
         self.frame_footer.pack(side=BOTTOM)
 
     def create_incidence(self):
         new_evidence = Evidence(name=self.evidence['name'].get())
         project.evidences.append(new_evidence)
+        db.commit_changes()
+
         print(project.evidences)
+
 
 class Example(Frame):
 

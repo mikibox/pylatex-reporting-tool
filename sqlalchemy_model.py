@@ -24,6 +24,10 @@ class Evidence(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    file_path = Column(String(1000))
+    description = Column(String(3000))
+    order = Column(Integer)
     project_id = Column(Integer, ForeignKey('project.id'))
 
     def __repr__(self):

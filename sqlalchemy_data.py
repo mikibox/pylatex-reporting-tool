@@ -55,9 +55,12 @@ def get_all_projects():
 # ----------------------------
 # Populate the database
 # ----------------------------
-# evidence_1 = Evidence(name='ualalala')
-# evidence_2 = Evidence(name='ssssssss')
-#
-# project_66 = Project(name='myprojectGOOOOD',
-#                      description="my general description",
-#                      evidences=[evidence_1, evidence_2])
+evidence_2 = Evidence(name='ssssssss',
+                      file_path='/root/Desktop/test.txt',
+                      description='lasdkfasd alkdf asdf adf ajdsf kasdf asdf ladksf lakjsdf lkajsdf')
+
+
+project_66 = Project(name='myprojectGOOOOD',
+                     description="my general description",
+                     evidences=[evidence_2])
+print(get_all_projects())
