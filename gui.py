@@ -5,6 +5,8 @@ from tkinter.ttk import Frame, Label, Entry, Combobox, Button
 import sqlalchemy_data as db
 from sqlalchemy_model import Evidence, Project
 
+project = None
+
 
 class ProjectSelector(Frame):
 
@@ -17,10 +19,10 @@ class ProjectSelector(Frame):
         self.frame_evidence = Frame(self.master)
         self.frame_footer = Frame(self.master)
 
-        self.initUI()
+        self.init_ui()
         super().__init__()
 
-    def initUI(self):
+    def init_ui(self):
 
         first_column_width = 15
 
@@ -44,6 +46,7 @@ class ProjectSelector(Frame):
 
     def project_selected(self, e):
         if self.project_cmbx.get():
+            global project
             project = db.get_project_by_name(self.project_cmbx.get())
             print(project)
 
@@ -65,30 +68,40 @@ class EvidenceWindow(Frame):
     def __init__(self, master):
         self.master = master
         self.master.title("Evidence-Selector")
-
-        self.project_cmbx = None
-        self.frame_evidence = None
-        self.frame_footer = None
-
-        self.initUI()
+        self.frame = Frame(self.master)
+        self.frame_footer = Frame(self.master)
+        self.evidence = dict()
+        self.init_ui()
         super().__init__()
 
-    def initUI(self):
-        # self.pack(fill=BOTH, expand=True)
-
+    def init_ui(self):
         first_column_width = 15
 
-        frame1 = Frame(self.master)
-        frame1.pack(fill=X)
+        self.frame.pack(fill=X)
 
+        lbl_name = Label(self.frame, text="Name", width=first_column_width)
+        lbl_name.pack(side=LEFT, padx=5, pady=5)
+
+        self.evidence['name'] = Entry(self.frame)
+        self.evidence['name'].pack(fill=X, padx=5, expand=True)
+
+        bttn_create_evidence = Button(self.frame_footer, text="Create", command=self.create_incidence)
+        bttn_create_evidence.pack(side=BOTTOM, padx=5, pady=5)
+
+        self.frame_footer.pack(side=BOTTOM)
+
+    def create_incidence(self):
+        new_evidence = Evidence(name=self.evidence['name'].get())
+        project.evidences.append(new_evidence)
+        print(project.evidences)
 
 class Example(Frame):
 
     def __init__(self, message):
         super().__init__()
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         self.master.title("Review")
         self.pack(fill=BOTH, expand=True)
 
