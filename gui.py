@@ -43,6 +43,7 @@ class ProjectSelector(Frame):
         bttn_new_evidence.pack(side=TOP, padx=5, pady=5)
 
         self.frame_footer.pack(side=BOTTOM)
+        quit()
 
     def project_selected(self, e):
         if self.project_cmbx.get():
@@ -124,6 +125,7 @@ def main():
     root.geometry("300x300+300+300")
     app = ProjectSelector(root)
     root.mainloop()
+    quit()
 
 
 if __name__ == '__main__':
