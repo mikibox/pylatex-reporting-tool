@@ -3,7 +3,7 @@ python:
   - "3.4"
   - "3.6"
 # command to install dependencies
-script: python gui.py
+script: python -m unittest tests
 branches:
   only:
     - master
