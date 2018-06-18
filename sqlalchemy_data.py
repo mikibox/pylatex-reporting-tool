@@ -6,8 +6,9 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_model import Evidence, Project
+from sqlalchemy_model import Evidence, Project, create_database
 from datetime import datetime
+import os
 
 
 @event.listens_for(Engine, "connect")
@@ -16,6 +17,9 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
+
+if not os.path.exists('/database/my_db.sqlite'):
+    create_database()
 
 engine = create_engine('sqlite:///database/my_db.sqlite', echo=True)
 Session = sessionmaker(bind=engine)
