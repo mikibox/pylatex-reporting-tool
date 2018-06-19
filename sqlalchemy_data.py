@@ -18,10 +18,10 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 
-if not os.path.exists('/database/my_db.sqlite'):
+if not os.path.exists('/database/my_db_tests.sqlite'):
     create_database()
 
-engine = create_engine('sqlite:///database/my_db.sqlite', echo=True)
+engine = create_engine('sqlite:///database/my_db_tests.sqlite', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 

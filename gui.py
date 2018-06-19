@@ -60,7 +60,10 @@ class ProjectSelector(Frame):
             evidence_lbl.pack(side=TOP)
 
     def click_new_evidence(self):
-        self.ef = EvidenceWindow(Toplevel(self.master))
+        if not project:
+            messagebox.showerror("Error", "Please select a project")
+        else:
+            self.ef = EvidenceWindow(Toplevel(self.master))
 
 
 class EvidenceWindow(Frame):
@@ -102,7 +105,8 @@ class EvidenceWindow(Frame):
         lbl_filepath = Label(self.frame, text="Files", width=first_column_width)
         lbl_filepath.grid(row=row, column=0)
 
-        self.entry_filepath = Label(self.frame, text="", width=second_column_width)
+        self.filepath_value = StringVar()
+        self.entry_filepath = Entry(self.frame, textvariable=self.filepath_value, width=second_column_width)
         self.entry_filepath.grid(row=row, column=1)
 
         bttn_create_evidence = Button(self.frame, text="Add File", command=self.add_file)
@@ -116,24 +120,24 @@ class EvidenceWindow(Frame):
         bttn_create_evidence.pack(side=BOTTOM, padx=5, pady=5)
 
 
-    def create_incidence(self):
-        new_evidence = Evidence(name=self.name.get())
-        print(new_evidence)
-        quit()
-        project.evidences.append(new_evidence)
-        db.commit_changes()
-
-        print(project.evidences)
-
     def add_file(self):
         file_path = filedialog.askopenfilename(parent=self.frame, initialdir="/", title="Select file",
                                    filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
         if file_path:
             self.evidence['file_path'] = file_path
-            self.entry_filepath['text'] = file_path
+            self.filepath_value.set(file_path)
         else:
             messagebox.showinfo('Info', 'No folder was selected')
 
+    def create_incidence(self):
+        new_evidence = Evidence(name=self.entry_name.get(),
+                                description=self.entry_description.get(),
+                                file_path=self.filepath_value.get())
+
+        project.evidences.append(new_evidence)
+        db.commit_changes()
+
+        print(project.evidences)
 
 def main():
     root = Tk()
