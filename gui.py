@@ -43,7 +43,6 @@ class ProjectSelector(Frame):
         bttn_new_evidence.pack(side=TOP, padx=5, pady=5)
 
         self.frame_footer.pack(side=BOTTOM)
-        quit()
 
     def project_selected(self, e):
         if self.project_cmbx.get():
@@ -70,28 +69,44 @@ class EvidenceWindow(Frame):
         self.master = master
         self.master.geometry("500x300+300+300")
         self.master.title("Evidence-Selector")
-        self.frame = Frame(self.master)
-        self.frame_footer = Frame(self.master)
         self.evidence = dict()
+
         self.init_ui()
         super().__init__()
 
     def init_ui(self):
+        self.frame = Frame(self.master)
+        self.frame.pack(fill=X)
+        self.frame_footer = Frame(self.master)
+        self.frame_footer.pack(side=BOTTOM)
+
+
         row=1
         first_column_width = 15
         second_column_width = 60
 
-        lbl_name = Label(self.frame, text="Name").grid(row=row, column=0)
-        self.evidence['name'] = Entry(self.frame, width=second_column_width).grid(row=row, column=1)
+        lbl_name = Label(self.frame, text="Name")
+        lbl_name.grid(row=row, column=0)
+
+        self.entry_name = Entry(self.frame, width=second_column_width)
+        self.entry_name.grid(row=row, column=1)
 
         row+=1
-        lbl_description = Label(self.frame, text="Description", width=first_column_width).grid(row=row, column=0)
-        self.evidence['description'] = Entry(self.frame, width=second_column_width).grid(row=row, column=1)
+        lbl_description = Label(self.frame, text="Description", width=first_column_width)
+        lbl_description.grid(row=row, column=0)
+
+        self.entry_description = Entry(self.frame, width=second_column_width)
+        self.entry_description.grid(row=row, column=1)
 
         row += 1
-        lbl_filepath = Label(self.frame, text="Files", width=first_column_width).grid(row=row, column=0)
-        self.value_filepath = Label(self.frame, text="", width=first_column_width).grid(row=row, column=1)
-        bttn_create_evidence = Button(self.frame, text="Add File", command=self.add_file).grid(row=row, column=2)
+        lbl_filepath = Label(self.frame, text="Files", width=first_column_width)
+        lbl_filepath.grid(row=row, column=0)
+
+        self.entry_filepath = Label(self.frame, text="", width=second_column_width)
+        self.entry_filepath.grid(row=row, column=1)
+
+        bttn_create_evidence = Button(self.frame, text="Add File", command=self.add_file)
+        bttn_create_evidence.grid(row=row, column=2)
 
 
 
@@ -100,22 +115,22 @@ class EvidenceWindow(Frame):
         bttn_create_evidence = Button(self.frame_footer, text="Create", command=self.create_incidence)
         bttn_create_evidence.pack(side=BOTTOM, padx=5, pady=5)
 
-        self.frame.pack(fill=X)
-        self.frame_footer.pack(side=BOTTOM)
 
     def create_incidence(self):
-        new_evidence = Evidence(name=self.evidence['name'].get())
+        new_evidence = Evidence(name=self.name.get())
+        print(new_evidence)
+        quit()
         project.evidences.append(new_evidence)
         db.commit_changes()
 
         print(project.evidences)
 
     def add_file(self):
-        file_path = filedialog.askopenfilename(initialdir="/", title="Select file",
+        file_path = filedialog.askopenfilename(parent=self.frame, initialdir="/", title="Select file",
                                    filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
         if file_path:
             self.evidence['file_path'] = file_path
-            print(self.evidence)
+            self.entry_filepath['text'] = file_path
         else:
             messagebox.showinfo('Info', 'No folder was selected')
 
@@ -125,7 +140,6 @@ def main():
     root.geometry("300x300+300+300")
     app = ProjectSelector(root)
     root.mainloop()
-    quit()
 
 
 if __name__ == '__main__':
