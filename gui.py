@@ -8,7 +8,7 @@ from sqlalchemy_model import Evidence, Project
 project = None
 
 
-class ProjectSelector(Frame):
+class ProjectSelector():
 
     def __init__(self, master):
         self.master = master
@@ -29,6 +29,9 @@ class ProjectSelector(Frame):
         frame1 = Frame(self.master)
         frame1.pack(fill=X)
 
+        bttn_new_project = Button(frame1, text="New Project", command=self.click_new_project)
+        bttn_new_project.pack(side=TOP, padx=10, pady=10)
+
         project_lbl = Label(frame1, text="Select Project", width=first_column_width)
         project_lbl.pack(side=LEFT, padx=5, pady=5)
 
@@ -48,7 +51,7 @@ class ProjectSelector(Frame):
         if self.project_cmbx.get():
             global project
             project = db.get_project_by_name(self.project_cmbx.get())
-            print(project)
+
 
         self.frame_evidence.destroy()
         self.frame_evidence = Frame(self.master)
@@ -59,11 +62,60 @@ class ProjectSelector(Frame):
             evidence_lbl = Label(self.frame_evidence, text=evidence)
             evidence_lbl.pack(side=TOP)
 
+    def click_new_project(self):
+        self.np = ProjectWindow(Toplevel(self.master))
+
     def click_new_evidence(self):
         if not project:
             messagebox.showerror("Error", "Please select a project")
         else:
             self.ef = EvidenceWindow(Toplevel(self.master))
+
+
+class ProjectWindow():
+
+    def __init__(self, master):
+        self.master = master
+        self.master.geometry("500x300+300+300")
+        self.master.title("ProjectWindow")
+        self.project = dict()
+
+        self.init_ui()
+        super().__init__()
+
+    def init_ui(self):
+        self.frame = Frame(self.master)
+        self.frame.pack(fill=X)
+        self.frame_footer = Frame(self.master)
+        self.frame_footer.pack(side=BOTTOM)
+
+        row = 1
+        first_column_width = 15
+        second_column_width = 60
+
+        lbl_name = Label(self.frame, text="Name")
+        lbl_name.grid(row=row, column=0)
+
+        self.project_name = Entry(self.frame, width=second_column_width)
+        self.project_name.grid(row=row, column=1)
+
+        row+=1
+        lbl_description = Label(self.frame, text="Description")
+        lbl_description.grid(row=row, column=0)
+
+        self.project_description = Entry(self.frame, width=second_column_width)
+        self.project_description.grid(row=row, column=1)
+
+        bttn_create_project = Button(self.frame_footer, text="Create", command=self.create_project)
+        bttn_create_project.pack(side=BOTTOM, padx=5, pady=5)
+
+    def create_project(self):
+        project = Project(name=self.project_name.get(),
+                          description=self.project_description.get())
+        project = db.create(project)
+        db.commit_changes()
+        print(project)
+        self.master.destroy()
 
 
 class EvidenceWindow(Frame):
@@ -109,11 +161,8 @@ class EvidenceWindow(Frame):
         self.entry_filepath = Entry(self.frame, textvariable=self.filepath_value, width=second_column_width)
         self.entry_filepath.grid(row=row, column=1)
 
-        bttn_create_evidence = Button(self.frame, text="Add File", command=self.add_file)
-        bttn_create_evidence.grid(row=row, column=2)
-
-
-
+        bttn_add_file = Button(self.frame, text="Add File", command=self.add_file)
+        bttn_add_file.grid(row=row, column=2)
 
 
         bttn_create_evidence = Button(self.frame_footer, text="Create", command=self.create_incidence)
