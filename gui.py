@@ -81,7 +81,10 @@ class ProjectSelector():
             self.ef = EvidenceWindow(Toplevel(self.master))
 
     def generate_report(self):
-        pass
+        incidences = db.get_evidences_by_project_name(project.id)
+        import latex_generator
+        latex_generator.generate_report(project, incidences)
+        print("success")
 
 
 class ProjectWindow():
