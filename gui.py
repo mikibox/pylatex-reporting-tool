@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from tkinter import Tk, Text, TOP, BOTH, X, Y, N,S,W,E, LEFT, messagebox, BOTTOM, Toplevel, filedialog, StringVar
+from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, messagebox, BOTTOM, Toplevel, filedialog, StringVar
 from tkinter.ttk import Frame, Label, Entry, Combobox, Button
 import sqlalchemy_data as db
 from sqlalchemy_model import Evidence, Project
@@ -51,12 +51,7 @@ class ProjectSelector():
     def update_projects(self):
         self.project_cmbx['values'] = [x.name for x in db.get_all_projects()]
 
-    def project_selected(self, e):
-        if self.project_cmbx.get():
-            global project
-            project = db.get_project_by_name(self.project_cmbx.get())
-
-
+    def update_evidences(self):
         self.frame_evidence.destroy()
         self.frame_evidence = Frame(self.master)
         self.frame_evidence.pack(fill=X)
@@ -66,10 +61,17 @@ class ProjectSelector():
             evidence_lbl = Label(self.frame_evidence, text=evidence)
             evidence_lbl.pack(side=TOP)
 
+    def project_selected(self, e=None):
+        global project
+        project = db.get_project_by_name(self.project_cmbx.get())
+        self.update_evidences()
+
     def click_new_project(self):
         self.np = ProjectWindow(Toplevel(self.master))
 
     def click_new_evidence(self):
+        global project
+        print(project)
         if not project:
             messagebox.showerror("Error", "Please select a project")
         else:
@@ -80,7 +82,7 @@ class ProjectWindow():
 
     def __init__(self, master):
         self.master = master
-        self.master.geometry("500x300+300+300")
+        # self.master.geometry("500x300+300+300")
         self.master.title("ProjectWindow")
         self.project = dict()
 
@@ -103,7 +105,7 @@ class ProjectWindow():
         self.project_name = Entry(self.frame, width=second_column_width)
         self.project_name.grid(row=row, column=1)
 
-        row+=1
+        row += 1
         lbl_description = Label(self.frame, text="Description")
         lbl_description.grid(row=row, column=0)
 
@@ -114,17 +116,21 @@ class ProjectWindow():
         bttn_create_project.pack(side=BOTTOM, padx=5, pady=5)
 
     def create_project(self):
-        project = Project(name=self.project_name.get(),
-                          description=self.project_description.get())
-        project = db.create(project)
-        db.commit_changes()
-        global app
-        app.update_projects()
-        app.project_cmbx.set(project.name)
-        self.master.destroy()
+        if self.project_name.get():
+            project = Project(name=self.project_name.get(),
+                              description=self.project_description.get())
+            project = db.create(project)
+            db.commit_changes()
+            global app
+            app.update_projects()
+            app.project_cmbx.set(project.name)
+            app.project_selected()
+            self.master.destroy()
+        else:
+            messagebox.showerror("Error", "Project Name cannot be null")
 
 
-class EvidenceWindow(Frame):
+class EvidenceWindow():
 
     def __init__(self, master):
         self.master = master
@@ -141,8 +147,7 @@ class EvidenceWindow(Frame):
         self.frame_footer = Frame(self.master)
         self.frame_footer.pack(side=BOTTOM)
 
-
-        row=1
+        row = 1
         first_column_width = 15
         second_column_width = 60
 
@@ -152,7 +157,7 @@ class EvidenceWindow(Frame):
         self.entry_name = Entry(self.frame, width=second_column_width)
         self.entry_name.grid(row=row, column=1)
 
-        row+=1
+        row += 1
         lbl_description = Label(self.frame, text="Description", width=first_column_width)
         lbl_description.grid(row=row, column=0)
 
@@ -170,14 +175,12 @@ class EvidenceWindow(Frame):
         bttn_add_file = Button(self.frame, text="Add File", command=self.add_file)
         bttn_add_file.grid(row=row, column=2)
 
-
         bttn_create_evidence = Button(self.frame_footer, text="Create", command=self.create_incidence)
         bttn_create_evidence.pack(side=BOTTOM, padx=5, pady=5)
 
-
     def add_file(self):
         file_path = filedialog.askopenfilename(parent=self.frame, initialdir="/", title="Select file",
-                                   filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
+                                               filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
         if file_path:
             self.evidence['file_path'] = file_path
             self.filepath_value.set(file_path)
@@ -191,8 +194,10 @@ class EvidenceWindow(Frame):
 
         project.evidences.append(new_evidence)
         db.commit_changes()
+        global app
+        app.update_evidences()
+        self.master.destroy()
 
-        print(project.evidences)
 
 def main():
     global app
