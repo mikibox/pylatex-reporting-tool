@@ -46,6 +46,9 @@ class ProjectSelector():
         bttn_new_evidence = Button(self.frame_footer, text="New Evidence", command=self.click_new_evidence)
         bttn_new_evidence.pack(side=TOP, padx=5, pady=5)
 
+        bttn_generate_report = Button(self.frame_footer, text="Generate Report", command=self.generate_report)
+        bttn_generate_report.pack(side=TOP, padx=5, pady=5)
+
         self.frame_footer.pack(side=BOTTOM)
 
     def update_projects(self):
@@ -76,6 +79,9 @@ class ProjectSelector():
             messagebox.showerror("Error", "Please select a project")
         else:
             self.ef = EvidenceWindow(Toplevel(self.master))
+
+    def generate_report(self):
+        pass
 
 
 class ProjectWindow():
