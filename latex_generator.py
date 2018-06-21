@@ -27,7 +27,7 @@ def generate_report(project, incidences):
         "margin": "1in",
         "bottom": "1in"
     }
-    doc = Document(default_filepath="evidences\\basic", geometry_options=geometry_options)
+    doc = Document(default_filepath="evidences\\{}".format(project.id), geometry_options=geometry_options)
     doc.packages.append(Package('listings'))
     doc.packages.append(Package('color'))
     doc.append(NoEscape(r'''
