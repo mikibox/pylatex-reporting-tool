@@ -5,6 +5,7 @@ from tkinter.ttk import Frame, Label, Entry, Combobox, Button
 import sqlalchemy_data as db
 from sqlalchemy_model import Evidence, Project
 
+app = None
 project = None
 
 
@@ -46,6 +47,9 @@ class ProjectSelector():
         bttn_new_evidence.pack(side=TOP, padx=5, pady=5)
 
         self.frame_footer.pack(side=BOTTOM)
+
+    def update_projects(self):
+        self.project_cmbx['values'] = [x.name for x in db.get_all_projects()]
 
     def project_selected(self, e):
         if self.project_cmbx.get():
@@ -114,7 +118,9 @@ class ProjectWindow():
                           description=self.project_description.get())
         project = db.create(project)
         db.commit_changes()
-        print(project)
+        global app
+        app.update_projects()
+        app.project_cmbx.set(project.name)
         self.master.destroy()
 
 
@@ -189,6 +195,7 @@ class EvidenceWindow(Frame):
         print(project.evidences)
 
 def main():
+    global app
     root = Tk()
     root.geometry("300x300+300+300")
     app = ProjectSelector(root)
