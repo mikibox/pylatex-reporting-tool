@@ -1,9 +1,28 @@
 pipeline {
-    agent { docker { image 'python:3.5.1' } }
+    agent {
+        docker {
+            image 'miquelrfairman/reportingapp:latest'
+        }
+    }
     stages {
-        stage('build') {
+        stage('Build') {
             steps {
-                sh 'python --version'
+                sh 'python -m compileall .'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'python -m unittest tests.py'
+            }
+        }
+        stage('Deliver') {
+            steps {
+                sh 'pyinstaller -y --add-data database:database gui.py'
+            }
+            post {
+                success {
+                    archiveArtifacts 'dist/gui/gui'
+                }
             }
         }
     }
