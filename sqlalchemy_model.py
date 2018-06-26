@@ -12,16 +12,15 @@ class Project(Base):
     name = Column(String, unique=True, nullable=False)
     description = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
-    evidences = relationship('Evidence', backref='project', lazy='dynamic')
+    findings = relationship('Finding', backref='project', lazy='dynamic')
 
     def __repr__(self):
         str_created_at = self.created_at.strftime("%Y-%m-%d %H:%M:%S")
         return "<Project (id='%s', name='%s', created_at=%s)>" % (self.id, self.name, str_created_at)
 
 
-class Evidence(Base):
-    __tablename__ = 'evidence'
-
+class Finding(Base):
+    __tablename__ = 'finding'
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -29,9 +28,29 @@ class Evidence(Base):
     description = Column(String(3000))
     order = Column(Integer)
     project_id = Column(Integer, ForeignKey('project.id'))
+    proofs = relationship('Proof')
 
     def __repr__(self):
-        return "<Evidence (name='%s')>" % (self.name)
+        return "<Finding (name='%s')>" % (self.name)
+
+
+class Proof(Base):
+    __tablename__ = 'proof'
+    id = Column(Integer, primary_key=True)
+    type_id = Column(Integer, ForeignKey('proof_type.id'))
+    type = relationship('ProofType')
+    path = Column(String(3000))
+    finding_id = Column(Integer, ForeignKey('finding.id'))
+
+    # def __repr__(self):
+    #     return "<Proof (type='{}', path '{}')>".format(self.type_id, self.path)
+
+
+class ProofType(Base):
+    __tablename__ = 'proof_type'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+
 
 
 # ----------------------------
@@ -54,6 +73,7 @@ def create_database():
     from sqlalchemy import create_engine
     engine = create_engine('sqlite:///database/my_db_tests.sqlite', echo=True)
     Base.metadata.create_all(engine)
+
 
 
 if __name__ == '__main__':
