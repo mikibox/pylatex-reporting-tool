@@ -27,7 +27,7 @@ class Finding(Base):
     file_path = Column(String(1000))
     description = Column(String(3000))
     order = Column(Integer)
-    project_id = Column(Integer, ForeignKey('project.id'))
+    project_id = Column(Integer, ForeignKey('project.id'), nullable=False)
     proofs = relationship('Proof')
 
     def __repr__(self):
@@ -40,16 +40,19 @@ class Proof(Base):
     type_id = Column(Integer, ForeignKey('proof_type.id'))
     type = relationship('ProofType')
     path = Column(String(3000))
-    finding_id = Column(Integer, ForeignKey('finding.id'))
+    finding_id = Column(Integer, ForeignKey('finding.id'), nullable=False)
 
-    # def __repr__(self):
-    #     return "<Proof (type='{}', path '{}')>".format(self.type_id, self.path)
+    def __repr__(self):
+        return "<Proof (type='{}', path '{}')>".format(self.type_id, self.path)
 
 
 class ProofType(Base):
     __tablename__ = 'proof_type'
     id = Column(Integer, primary_key=True)
-    name = Column(String(100))
+    name = Column(String(100), unique=True)
+
+    def __repr__(self):
+        return self.name
 
 
 
@@ -77,4 +80,4 @@ def create_database():
 
 
 if __name__ == '__main__':
-    create_database()
+    pass

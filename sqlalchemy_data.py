@@ -6,9 +6,13 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_model import Evidence, Project, create_database
+from sqlalchemy_model import Proof, ProofType, Finding, Project, create_database
 from datetime import datetime
 import os
+
+engine = create_engine('sqlite:///database/my_db_tests.sqlite', echo=False)
+Session = sessionmaker(bind=engine)
+session = Session()
 
 
 @event.listens_for(Engine, "connect")
@@ -16,14 +20,6 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
-
-
-if not os.path.exists('/database/my_db_tests.sqlite'):
-    create_database()
-
-engine = create_engine('sqlite:///database/my_db_tests.sqlite', echo=True)
-Session = sessionmaker(bind=engine)
-session = Session()
 
 
 def create(element):
@@ -41,12 +37,24 @@ def commit_changes():
     session.commit()
 
 
+def get_proof_types():
+    return session.query(ProofType).all()
+
+
+def get_proof_type_by_name(name):
+    return session.query(ProofType).filter(ProofType.name == name).one_or_none()
+
+
+def get_all_proofs():
+    return session.query(Proof).all()
+
+
 def get_evidence_by_id(evidence_id):
-    return session.query(Evidence).filter(Evidence.id == evidence_id)
+    return session.query(Finding).filter(Finding.id == evidence_id)
 
 
 def get_evidences_by_project_name(project_id):
-    return session.query(Evidence).filter(Evidence.project_id == project_id).all()
+    return session.query(Finding).filter(Finding.project_id == project_id).all()
 
 
 def get_project_by_name(project_name):
@@ -56,15 +64,29 @@ def get_project_by_name(project_name):
 def get_all_projects():
     return session.query(Project).all()
 
-# ----------------------------
-# Populate the database
-# ----------------------------
-evidence_2 = Evidence(name='ssssssss',
-                      file_path='/root/Desktop/test.txt',
-                      description='lasdkfasd alkdf asdf adf ajdsf kasdf asdf ladksf lakjsdf lkajsdf')
 
+if not os.path.exists('/database/my_db_tests.sqlite'):
+    create_database()
 
-project_66 = Project(name='myprojectGOOOOD',
-                     description="my general description",
-                     evidences=[evidence_2])
-print(get_all_projects())
+    proof_types = ['text', 'image', 'other']
+    for proof_type in proof_types:
+        if not get_proof_type_by_name(proof_type):
+            create(ProofType(name=proof_type))
+    commit_changes()
+
+# proof1 = Proof(type=get_proof_type_by_name('text'),
+#                path='/root/Desktop/test.txt')
+# proof2 = Proof(type=get_proof_type_by_name('text'),
+#                path='/root/Desktop/test222222.txt')
+#
+# finding_1 = Finding(name='new_finding',
+#                     file_path='asdf',
+#                     description='lasdkfasd alkdf asdf adf ajdsf kasdf asdf ladksf lakjsdf lkajsdf',
+#                     proofs=[proof1, proof2])
+#
+# project_66 = Project(name='jejejej',
+#                      description="my general description",
+#                      findings=[finding_1])
+#
+# create(project_66)
+# print(get_all_proofs())

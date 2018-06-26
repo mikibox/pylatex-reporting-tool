@@ -3,7 +3,7 @@
 from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, messagebox, BOTTOM, Toplevel, filedialog, StringVar
 from tkinter.ttk import Frame, Label, Entry, Combobox, Button
 import sqlalchemy_data as db
-from sqlalchemy_model import Evidence, Project
+from sqlalchemy_model import Proof, Finding, Project
 
 app = None
 project = None
@@ -197,9 +197,9 @@ class EvidenceWindow():
             messagebox.showinfo('Info', 'No folder was selected')
 
     def create_incidence(self):
-        new_evidence = Evidence(name=self.entry_name.get(),
-                                description=self.entry_description.get(),
-                                file_path=self.filepath_value.get())
+        new_evidence = Finding(name=self.entry_name.get(),
+                               description=self.entry_description.get(),
+                               file_path=self.filepath_value.get())
 
         project.evidences.append(new_evidence)
         db.commit_changes()
