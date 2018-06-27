@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, messagebox, BOTTOM, Toplevel, filedialog, StringVar
+from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, RIGHT, messagebox, BOTTOM, Toplevel, filedialog, StringVar
 from tkinter.ttk import Frame, Label, Entry, Combobox, Button
 import sqlalchemy_data as db
 from sqlalchemy_model import Proof, Finding, Project
@@ -143,7 +143,7 @@ class FindingWindow():
 
     def __init__(self, master):
         self.master = master
-        self.master.geometry("500x300+300+300")
+        # self.master.geometry("500x300+300+300")
         self.master.title("Finding-Selector")
         self.finding = dict()
 
@@ -152,23 +152,23 @@ class FindingWindow():
 
     def init_ui(self):
         self.frame = Frame(self.master)
-        self.frame.pack(fill=X)
+        self.frame.pack(fill=X, padx=20, pady=20)
         self.frame_footer = Frame(self.master)
         self.frame_footer.pack(side=BOTTOM)
 
         row = 1
         first_column_width = 15
-        second_column_width = 60
+        second_column_width = 40
 
-        lbl_name = Label(self.frame, text="Name")
-        lbl_name.grid(row=row, column=0)
+        lbl_name = Label(self.frame, text="Name", width=first_column_width)
+        lbl_name.grid(row=row, column=0, padx=10)
 
         self.entry_name = Entry(self.frame, width=second_column_width)
         self.entry_name.grid(row=row, column=1)
 
         row += 1
         lbl_description = Label(self.frame, text="Description", width=first_column_width)
-        lbl_description.grid(row=row, column=0)
+        lbl_description.grid(row=row, column=0, padx=10)
 
         self.entry_description = Entry(self.frame, width=second_column_width)
         self.entry_description.grid(row=row, column=1)
