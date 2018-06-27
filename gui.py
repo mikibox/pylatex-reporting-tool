@@ -146,6 +146,7 @@ class FindingWindow():
         self.master.geometry("400x300+300+300")
         self.master.title("Finding-Selector")
         self.finding = dict()
+        self.finding['proofs'] = list()
 
         self.init_ui()
         super().__init__()
@@ -193,23 +194,27 @@ class FindingWindow():
             file_ext = os.path.splitext(file_path)[1]
 
             if file_ext in (".txt",".sh",".py"):
-                proof_type_id = db.get_proof_type_by_name('text')
+                proof_type = db.get_proof_type_by_name('text')
             elif file_ext in (".png", ".jpeg", ".gif"):
-                proof_type_id = db.get_proof_type_by_name('image')
+                proof_type = db.get_proof_type_by_name('image')
             else:
                 messagebox.showerror("Extension Error","the file extension {} is not suported, sorry :(".format(file_ext))
                 return
 
-            print(file_ext)
-            # self.finding['proofs'].append()
-            # self.filepath_value.set(file_path)
+            new_proof = Proof(path=file_path,
+                              type=proof_type)
+
+            self.finding['proofs'].append(new_proof)
+            self.filepath_value.set(file_path)
+
         else:
             messagebox.showinfo('Info', 'No folder was selected')
 
     def create_incidence(self):
         new_finding = Finding(name=self.entry_name.get(),
-                               description=self.entry_description.get(),
-                               file_path=self.filepath_value.get())
+                              description=self.entry_description.get(),
+                              file_path=self.filepath_value.get(),
+                              proofs=self.finding['proofs'])
 
         project.findings.append(new_finding)
         db.commit_changes()
