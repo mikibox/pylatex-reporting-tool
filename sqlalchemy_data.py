@@ -49,11 +49,11 @@ def get_all_proofs():
     return session.query(Proof).all()
 
 
-def get_evidence_by_id(evidence_id):
-    return session.query(Finding).filter(Finding.id == evidence_id)
+def get_finding_by_id(finding_id):
+    return session.query(Finding).filter(Finding.id == finding_id)
 
 
-def get_evidences_by_project_name(project_id):
+def get_findings_by_project_name(project_id):
     return session.query(Finding).filter(Finding.project_id == project_id).all()
 
 

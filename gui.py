@@ -17,7 +17,7 @@ class ProjectSelector():
 
         self.project_cmbx = None
         self.frame_header = Frame(self.master)
-        self.frame_evidence = Frame(self.master)
+        self.frame_finding = Frame(self.master)
         self.frame_footer = Frame(self.master)
 
         self.init_ui()
@@ -41,10 +41,10 @@ class ProjectSelector():
         self.project_cmbx.bind('<<ComboboxSelected>>', self.project_selected)
         self.project_cmbx.pack(fill=X, padx=5, pady=5)
 
-        self.frame_evidence.pack(fill=X)
+        self.frame_finding.pack(fill=X)
 
-        bttn_new_evidence = Button(self.frame_footer, text="New Evidence", command=self.click_new_evidence)
-        bttn_new_evidence.pack(side=TOP, padx=5, pady=5)
+        bttn_new_finding = Button(self.frame_footer, text="New Finding", command=self.click_new_finding)
+        bttn_new_finding.pack(side=TOP, padx=5, pady=5)
 
         bttn_generate_report = Button(self.frame_footer, text="Generate Report", command=self.generate_report)
         bttn_generate_report.pack(side=TOP, padx=5, pady=5)
@@ -54,34 +54,34 @@ class ProjectSelector():
     def update_projects(self):
         self.project_cmbx['values'] = [x.name for x in db.get_all_projects()]
 
-    def update_evidences(self):
-        self.frame_evidence.destroy()
-        self.frame_evidence = Frame(self.master)
-        self.frame_evidence.pack(fill=X)
+    def update_findings(self):
+        self.frame_finding.destroy()
+        self.frame_finding = Frame(self.master)
+        self.frame_finding.pack(fill=X)
 
-        evidences = db.get_evidences_by_project_name(project.id)
-        for evidence in evidences:
-            evidence_lbl = Label(self.frame_evidence, text=evidence)
-            evidence_lbl.pack(side=TOP)
+        findings = db.get_findings_by_project_name(project.id)
+        for finding in findings:
+            finding_lbl = Label(self.frame_finding, text=finding)
+            finding_lbl.pack(side=TOP)
 
     def project_selected(self, e=None):
         global project
         project = db.get_project_by_name(self.project_cmbx.get())
-        self.update_evidences()
+        self.update_findings()
 
     def click_new_project(self):
         self.np = ProjectWindow(Toplevel(self.master))
 
-    def click_new_evidence(self):
+    def click_new_finding(self):
         global project
         print(project)
         if not project:
             messagebox.showerror("Error", "Please select a project")
         else:
-            self.ef = EvidenceWindow(Toplevel(self.master))
+            self.ef = FindingWindow(Toplevel(self.master))
 
     def generate_report(self):
-        incidences = db.get_evidences_by_project_name(project.id)
+        incidences = db.get_findings_by_project_name(project.id)
         import latex_generator
         latex_generator.generate_report(project, incidences)
         print("success")
@@ -139,13 +139,13 @@ class ProjectWindow():
             messagebox.showerror("Error", "Project Name cannot be null")
 
 
-class EvidenceWindow():
+class FindingWindow():
 
     def __init__(self, master):
         self.master = master
         self.master.geometry("500x300+300+300")
-        self.master.title("Evidence-Selector")
-        self.evidence = dict()
+        self.master.title("Finding-Selector")
+        self.finding = dict()
 
         self.init_ui()
         super().__init__()
@@ -184,27 +184,27 @@ class EvidenceWindow():
         bttn_add_file = Button(self.frame, text="Add File", command=self.add_file)
         bttn_add_file.grid(row=row, column=2)
 
-        bttn_create_evidence = Button(self.frame_footer, text="Create", command=self.create_incidence)
-        bttn_create_evidence.pack(side=BOTTOM, padx=5, pady=5)
+        bttn_create_finding = Button(self.frame_footer, text="Create", command=self.create_incidence)
+        bttn_create_finding.pack(side=BOTTOM, padx=5, pady=5)
 
     def add_file(self):
         file_path = filedialog.askopenfilename(parent=self.frame, initialdir="/", title="Select file",
                                                filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
         if file_path:
-            self.evidence['file_path'] = file_path
+            self.finding['file_path'] = file_path
             self.filepath_value.set(file_path)
         else:
             messagebox.showinfo('Info', 'No folder was selected')
 
     def create_incidence(self):
-        new_evidence = Finding(name=self.entry_name.get(),
+        new_finding = Finding(name=self.entry_name.get(),
                                description=self.entry_description.get(),
                                file_path=self.filepath_value.get())
 
-        project.evidences.append(new_evidence)
+        project.findings.append(new_finding)
         db.commit_changes()
         global app
-        app.update_evidences()
+        app.update_findings()
         self.master.destroy()
 
 
