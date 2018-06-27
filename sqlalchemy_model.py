@@ -74,7 +74,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 
 def create_database():
     from sqlalchemy import create_engine
-    engine = create_engine('sqlite:///database/my_db_tests.sqlite', echo=True)
+    engine = create_engine('sqlite:///database/my_db_tests.sqlite', echo=False)
     Base.metadata.create_all(engine)
 
 

@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, RIGHT, messagebox, BOTTOM, Toplevel, filedialog, StringVar
-from tkinter.ttk import Frame, Label, Entry, Combobox, Button
+from tkinter.ttk import Frame, Label, Entry, Combobox, Button, Labelframe
 import sqlalchemy_data as db
 from sqlalchemy_model import Proof, Finding, Project
-
+import os
+import sys
 app = None
 project = None
 
@@ -74,7 +75,6 @@ class ProjectSelector():
 
     def click_new_finding(self):
         global project
-        print(project)
         if not project:
             messagebox.showerror("Error", "Please select a project")
         else:
@@ -143,7 +143,7 @@ class FindingWindow():
 
     def __init__(self, master):
         self.master = master
-        # self.master.geometry("500x300+300+300")
+        self.master.geometry("400x300+300+300")
         self.master.title("Finding-Selector")
         self.finding = dict()
 
@@ -153,6 +153,8 @@ class FindingWindow():
     def init_ui(self):
         self.frame = Frame(self.master)
         self.frame.pack(fill=X, padx=20, pady=20)
+        self.frame_proof = Labelframe(self.master, text='Proofs')
+        self.frame_proof.pack(fill=BOTH,padx=20)
         self.frame_footer = Frame(self.master)
         self.frame_footer.pack(side=BOTTOM)
 
@@ -173,26 +175,34 @@ class FindingWindow():
         self.entry_description = Entry(self.frame, width=second_column_width)
         self.entry_description.grid(row=row, column=1)
 
-        row += 1
-        lbl_filepath = Label(self.frame, text="Files", width=first_column_width)
-        lbl_filepath.grid(row=row, column=0)
-
+        row = 1
         self.filepath_value = StringVar()
-        self.entry_filepath = Entry(self.frame, textvariable=self.filepath_value, width=second_column_width)
-        self.entry_filepath.grid(row=row, column=1)
+        self.entry_filepath = Entry(self.frame_proof, textvariable=self.filepath_value, width=second_column_width)
+        self.entry_filepath.grid(row=row, column=0)
 
-        bttn_add_file = Button(self.frame, text="Add File", command=self.add_file)
-        bttn_add_file.grid(row=row, column=2)
+        bttn_add_file = Button(self.frame_proof, text="Add File", command=self.add_file)
+        bttn_add_file.grid(row=row, column=1)
 
         bttn_create_finding = Button(self.frame_footer, text="Create", command=self.create_incidence)
         bttn_create_finding.pack(side=BOTTOM, padx=5, pady=5)
 
     def add_file(self):
-        file_path = filedialog.askopenfilename(parent=self.frame, initialdir="/", title="Select file",
-                                               filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
+        file_path = filedialog.askopenfilename(parent=self.frame, initialdir="/", title="Select file")
+                                               # filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
         if file_path:
-            self.finding['file_path'] = file_path
-            self.filepath_value.set(file_path)
+            file_ext = os.path.splitext(file_path)[1]
+
+            if file_ext in (".txt",".sh",".py"):
+                proof_type_id = db.get_proof_type_by_name('text')
+            elif file_ext in (".png", ".jpeg", ".gif"):
+                proof_type_id = db.get_proof_type_by_name('image')
+            else:
+                messagebox.showerror("Extension Error","the file extension {} is not suported, sorry :(".format(file_ext))
+                return
+
+            print(file_ext)
+            # self.finding['proofs'].append()
+            # self.filepath_value.set(file_path)
         else:
             messagebox.showinfo('Info', 'No folder was selected')
 
