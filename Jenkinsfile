@@ -18,10 +18,20 @@ pipeline {
         stage('Deliver') {
             steps {
                 sh 'pyinstaller -y --add-data database:database gui.py'
+                sh '''
+                    cd dist/
+                    ls -alt
+                    zip -r gui gui
+
+                '''
             }
             post {
                 success {
-                    archiveArtifacts 'dist/gui/gui'
+                    archiveArtifacts 'dist/gui.zip'
+                    copyArtifacts(projectName: 'reportingapppipeline',target: '/home')
+                }
+                failure {
+                    sh 'rm -r dist build'
                 }
             }
         }
