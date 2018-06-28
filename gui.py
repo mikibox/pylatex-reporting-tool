@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, RIGHT, messagebox, BOTTOM, Toplevel, filedialog, StringVar
+from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, RIGHT, messagebox, BOTTOM, Toplevel, filedialog, \
+    StringVar
 from tkinter.ttk import Frame, Label, Entry, Combobox, Button, Labelframe
 import sqlalchemy_data as db
 from sqlalchemy_model import Proof, Finding, Project
 import os
 import sys
+
 app = None
 project = None
 
@@ -155,7 +157,7 @@ class FindingWindow():
         self.frame = Frame(self.master)
         self.frame.pack(fill=X, padx=20, pady=20)
         self.frame_proof = Labelframe(self.master, text='Proofs')
-        self.frame_proof.pack(fill=BOTH,padx=20)
+        self.frame_proof.pack(fill=BOTH, padx=20)
         self.frame_footer = Frame(self.master)
         self.frame_footer.pack(side=BOTTOM)
 
@@ -189,16 +191,17 @@ class FindingWindow():
 
     def add_file(self):
         file_path = filedialog.askopenfilename(parent=self.frame, initialdir="/", title="Select file")
-                                               # filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
+        # filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
         if file_path:
             file_ext = os.path.splitext(file_path)[1]
 
-            if file_ext in (".txt",".sh",".py"):
+            if file_ext in (".txt", ".sh", ".py"):
                 proof_type = db.get_proof_type_by_name('text')
             elif file_ext in (".png", ".jpeg", ".gif"):
                 proof_type = db.get_proof_type_by_name('image')
             else:
-                messagebox.showerror("Extension Error","the file extension {} is not suported, sorry :(".format(file_ext))
+                messagebox.showerror("Extension Error",
+                                     "the file extension {} is not suported, sorry :(".format(file_ext))
                 return
 
             new_proof = Proof(path=file_path,
