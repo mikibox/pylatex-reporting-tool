@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, RIGHT, messagebox, BOTTOM, Toplevel, filedialog, \
-    StringVar
-from tkinter.ttk import Frame, Label, Entry, Combobox, Button, Labelframe
+    StringVar, Frame
+from tkinter.ttk import Label, Entry, Combobox, Button, Labelframe
 import sqlalchemy_data as db
 from sqlalchemy_model import Proof, Finding, Project
 import os
@@ -148,7 +148,8 @@ class FindingWindow():
         self.master.geometry("400x300+300+300")
         self.master.title("Finding-Selector")
         self.finding = dict()
-        self.finding['proofs'] = list()
+        self.proof_selectors = dict()
+        self.proof_count = 0
 
         self.init_ui()
         super().__init__()
@@ -156,8 +157,10 @@ class FindingWindow():
     def init_ui(self):
         self.frame = Frame(self.master)
         self.frame.pack(fill=X, padx=20, pady=20)
-        self.frame_proof = Labelframe(self.master, text='Proofs')
-        self.frame_proof.pack(fill=BOTH, padx=20)
+        self.frame_proofs = Labelframe(self.master, text='Proofs')
+        self.frame_proofs.pack(side=TOP, fill=BOTH, expand=True, padx=20)
+        self.frame_proofs_footer = Frame(self.frame_proofs)
+        self.frame_proofs_footer.pack(side=BOTTOM, anchor=E)
         self.frame_footer = Frame(self.master)
         self.frame_footer.pack(side=BOTTOM)
 
@@ -178,18 +181,63 @@ class FindingWindow():
         self.entry_description = Entry(self.frame, width=second_column_width)
         self.entry_description.grid(row=row, column=1)
 
-        row = 1
-        self.filepath_value = StringVar()
-        self.entry_filepath = Entry(self.frame_proof, textvariable=self.filepath_value, width=second_column_width)
-        self.entry_filepath.grid(row=row, column=0)
+        self.proof_selectors[self.proof_count]=ProofSelector(self.frame_proofs)
 
-        bttn_add_file = Button(self.frame_proof, text="Add File", command=self.add_file)
-        bttn_add_file.grid(row=row, column=1)
+        bttn_add_more_proof = Button(self.frame_proofs_footer, text="AddProof", command=self.add_more_proof)
+        bttn_add_more_proof.pack(padx=5, pady=5)
 
         bttn_create_finding = Button(self.frame_footer, text="Create", command=self.create_incidence)
         bttn_create_finding.pack(side=BOTTOM, padx=5, pady=5)
 
-    def add_file(self):
+    def add_more_proof(self):
+        self.proof_count+=1
+        self.proof_selectors[self.proof_count]=ProofSelector(self.frame_proofs)
+
+
+    def create_incidence(self):
+        active_proofs = list()
+        for proof_key in self.proof_selectors.keys():
+            if self.proof_selectors[proof_key].active and self.proof_selectors[proof_key].proof:
+                active_proofs.append(self.proof_selectors[proof_key].proof)
+
+        print(active_proofs)
+
+        new_finding = Finding(name=self.entry_name.get(),
+                              description=self.entry_description.get(),
+                              proofs=active_proofs)
+
+        project.findings.append(new_finding)
+        db.commit_changes()
+        global app
+        app.update_findings()
+        self.master.destroy()
+
+
+class ProofSelector:
+
+    def __init__(self, frame):
+        self.frame = frame
+        self.active = True
+
+        self.init_ui()
+
+    def init_ui(self):
+        self.proof = None
+        self.frame_single_proof = Frame(self.frame, bg='white')
+        self.frame_single_proof.pack(side=TOP, fill=X)
+
+        self.filepath_value = StringVar()
+        self.entry_filepath = Entry(self.frame_single_proof, textvariable=self.filepath_value)
+        self.entry_filepath.pack(side=LEFT, expand=True, fill=X)
+
+        bttn_select_file = Button(self.frame_single_proof, text="Add File", command=self.select_file)
+        bttn_select_file.pack(side=LEFT)
+
+        bttn_delette_file = Button(self.frame_single_proof, text="Delete File", command=self.delete_file)
+        bttn_delette_file.pack(side=LEFT)
+
+
+    def select_file(self):
         file_path = filedialog.askopenfilename(parent=self.frame, initialdir="/", title="Select file")
         # filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
         if file_path:
@@ -207,24 +255,16 @@ class FindingWindow():
             new_proof = Proof(path=file_path,
                               type=proof_type)
 
-            self.finding['proofs'].append(new_proof)
+            self.proof = new_proof
             self.filepath_value.set(file_path)
 
         else:
             messagebox.showinfo('Info', 'No folder was selected')
 
-    def create_incidence(self):
-        new_finding = Finding(name=self.entry_name.get(),
-                              description=self.entry_description.get(),
-                              file_path=self.filepath_value.get(),
-                              proofs=self.finding['proofs'])
-
-        project.findings.append(new_finding)
-        db.commit_changes()
-        global app
-        app.update_findings()
-        self.master.destroy()
-
+    def delete_file(self):
+        # if self.id != 0:
+            self.active = False
+            self.frame_single_proof.destroy()
 
 def main():
     global app
