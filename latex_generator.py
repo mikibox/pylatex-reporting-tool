@@ -1,26 +1,34 @@
-from pylatex import Document, Section, Subsection, Command
+from pylatex import Document, Section, Subsection, Command, Figure
 from pylatex.package import Package
 from pylatex.utils import italic, NoEscape
 
+def add_proof(doc, proof):
+    if proof.type.name == 'text':
+        doc.append(NoEscape(r'\lstinputlisting{'+proof.path+'}'))
+    elif proof.type.name == 'image':
+        with doc.create(Figure(position='h!')) as proof_pic:
+            proof_pic.add_image(proof.path, width=NoEscape(r'0.8\textwidth'), placement = NoEscape(r'\centering'))
+            proof_pic.add_caption('Look it\'s on its back')
 
-def add_finding(doc, evidence):
+
+def add_finding(doc, finding):
     """Add a section, a subsection and some text to the document.
 
     :param doc: the document
     :type doc: :class:`pylatex.document.Document` instance
     """
-    with doc.create(Subsection(evidence.name)):
+    with doc.create(Subsection(finding.name)):
         # doc.append(evidence.created_at)
-        doc.append(evidence.description)
+        doc.append(finding.description)
         doc.append(italic('italic text. '))
+        for proof in finding.proofs:
+            add_proof(doc,proof)
 
         # with doc.create(Subsection('A subsection')):
         #     doc.append('Also some crazy characters: $&#{}')
-        print(evidence.file_path)
-        doc.append(NoEscape(r'\lstinputlisting{'+evidence.file_path+'}'))
 
 
-def generate_report(project, incidences):
+def generate_report(project):
     # Basic document
     geometry_options = {
         "head": "40pt",
@@ -64,8 +72,8 @@ def generate_report(project, incidences):
     doc.preamble.append(Command('date', NoEscape(r'\today')))
     doc.append(NoEscape(r'\maketitle'))
 
-    for incidence in incidences:
-        add_finding(doc, incidence)
+    for finding in project.findings:
+        add_finding(doc, finding)
         # fill_document(doc)
 
     doc.generate_tex()

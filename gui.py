@@ -7,9 +7,31 @@ import sqlalchemy_data as db
 from sqlalchemy_model import Proof, Finding, Project
 import os
 import sys
+import shutil
 
 app = None
 project = None
+
+
+
+
+def export_project():
+    PROJECT_PATH = "projects"
+    global project
+    if not os.path.exists(PROJECT_PATH):
+        os.mkdir(PROJECT_PATH)
+        print("project base path created")
+
+    for finding in project.findings:
+        for proof in finding.proofs:
+            if proof.path:
+                ext = os.path.splitext(proof.path)[1]
+                dst_path = os.path.join(PROJECT_PATH,str(project.id), str(finding.id))
+                dst_filename = str(proof.id) + ext
+                dst = os.path.join(dst_path, dst_filename)
+                os.makedirs(dst_path, exist_ok=True)
+                shutil.copy(proof.path, dst)
+    print("done")
 
 
 class ProjectSelector():
@@ -83,10 +105,11 @@ class ProjectSelector():
             self.ef = FindingWindow(Toplevel(self.master))
 
     def generate_report(self):
-        incidences = db.get_findings_by_project_name(project.id)
-        import latex_generator
-        latex_generator.generate_report(project, incidences)
-        print("success")
+        export_project()
+        # incidences = db.get_findings_by_project_name(project.id)
+        # import latex_generator
+        # latex_generator.generate_report(project)
+        # print("success")
 
 
 class ProjectWindow():
