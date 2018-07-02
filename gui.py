@@ -5,6 +5,7 @@ from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, RIGHT, messageb
 from tkinter.ttk import Label, Entry, Combobox, Button, Labelframe
 import sqlalchemy_data as db
 from sqlalchemy_model import Proof, Finding, Project
+import latex_generator
 import os
 import sys
 import shutil
@@ -24,14 +25,19 @@ def export_project():
 
     for finding in project.findings:
         for proof in finding.proofs:
-            if proof.path:
-                ext = os.path.splitext(proof.path)[1]
-                dst_path = os.path.join(PROJECT_PATH,str(project.id), str(finding.id))
-                dst_filename = str(proof.id) + ext
-                dst = os.path.join(dst_path, dst_filename)
-                os.makedirs(dst_path, exist_ok=True)
-                shutil.copy(proof.path, dst)
-    print("done")
+            ext = os.path.splitext(proof.path)[1]
+            dst_path = os.path.join(PROJECT_PATH, str(project.id), str(finding.id))
+            dst_filename = str(proof.id) + ext
+            dst = os.path.join(dst_path, dst_filename)
+
+            if proof.path and not os.path.exists(dst):
+                try:
+                    os.makedirs(dst_path, exist_ok=True)
+                    shutil.copy(proof.path, dst)
+                except FileNotFoundError:
+                    print("Could not find this path: {}".format(proof.path))
+
+    print("Finished copying files")
 
 
 class ProjectSelector():
@@ -106,10 +112,8 @@ class ProjectSelector():
 
     def generate_report(self):
         export_project()
-        # incidences = db.get_findings_by_project_name(project.id)
-        # import latex_generator
-        # latex_generator.generate_report(project)
-        # print("success")
+        latex_generator.generate_report(project)
+        print("success")
 
 
 class ProjectWindow():
