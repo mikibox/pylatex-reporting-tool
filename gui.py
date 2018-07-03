@@ -85,6 +85,10 @@ class ProjectSelector():
     def update_projects(self):
         self.project_cmbx['values'] = [x.name for x in db.get_all_projects()]
 
+    def double_click_finding(self, event, finding_id):
+
+        messagebox.showinfo("Info",str(finding_id))
+
     def update_findings(self):
         self.frame_finding.destroy()
         self.frame_finding = Frame(self.master)
@@ -94,6 +98,8 @@ class ProjectSelector():
         for finding in findings:
             finding_lbl = Label(self.frame_finding, text=finding)
             finding_lbl.pack(side=TOP)
+            finding_lbl.bind("<Double-Button-1>",
+                             lambda event, finding_id = finding.id :self.double_click_finding(event, finding_id))
 
     def project_selected(self, e=None):
         global project

@@ -4,7 +4,7 @@ from pylatex.utils import italic, NoEscape
 import os
 
 def add_proof(doc, proof, exported_path=None):
-
+    print(exported_path)
     if proof.type.name == 'text':
         if exported_path:
             doc.append(NoEscape(r'\lstinputlisting{' + exported_path.replace('\\','/') + '}'))
@@ -93,7 +93,7 @@ def generate_report(project):
         # fill_document(doc)
 
     doc.generate_tex()
-    doc.generate_pdf(compiler='pdflatex', clean=True, clean_tex=False, silent=False, compiler_args=['-f','-quiet'])
+    doc.generate_pdf(clean=True, clean_tex=False, silent=False, compiler_args=['-f'])
 
     tex = doc.dumps()  # The document as string in LaTeX syntax
 
