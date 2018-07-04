@@ -342,7 +342,7 @@ class ProofSelector:
             messagebox.showinfo('Info', 'No folder was selected')
 
     def delete_file(self):
-        if self.proof and self.modified:
+        if self.proof or self.modified:
             db.delete(self.proof)
 
         self.active = False
