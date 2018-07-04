@@ -97,8 +97,9 @@ class ProjectSelector():
 
         findings = db.get_findings_by_project_name(project.id)
         for finding in findings:
-            finding_lbl = Label(self.frame_finding, text=finding)
-            finding_lbl.pack(side=TOP)
+            label_txt = "{:0>3d} \t {}".format(finding.id, finding.name)
+            finding_lbl = Label(self.frame_finding, text=label_txt)
+            finding_lbl.pack(side=TOP, anchor=W, padx = 10)
             finding_lbl.bind("<Double-Button-1>",
                              lambda event, finding_var = finding :self.double_click_finding(event, finding_var))
 
