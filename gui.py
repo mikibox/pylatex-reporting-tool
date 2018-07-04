@@ -85,6 +85,11 @@ class ProjectSelector():
     def update_projects(self):
         self.project_cmbx['values'] = [x.name for x in db.get_all_projects()]
 
+    def double_click_finding(self, event, finding):
+
+        # messagebox.showinfo("Info",str(finding_id))
+        self.ef = FindingWindow(Toplevel(self.master), finding)
+
     def update_findings(self):
         self.frame_finding.destroy()
         self.frame_finding = Frame(self.master)
@@ -92,8 +97,11 @@ class ProjectSelector():
 
         findings = db.get_findings_by_project_name(project.id)
         for finding in findings:
-            finding_lbl = Label(self.frame_finding, text=finding)
-            finding_lbl.pack(side=TOP)
+            label_txt = "{:0>3d} \t {}".format(finding.id, finding.name)
+            finding_lbl = Label(self.frame_finding, text=label_txt)
+            finding_lbl.pack(side=TOP, anchor=W, padx = 10)
+            finding_lbl.bind("<Double-Button-1>",
+                             lambda event, finding_var = finding :self.double_click_finding(event, finding_var))
 
     def project_selected(self, e=None):
         global project
@@ -170,15 +178,21 @@ class ProjectWindow():
 
 class FindingWindow():
 
-    def __init__(self, master):
+    def __init__(self, master, finding=None):
         self.master = master
+        self.finding = finding
         self.master.geometry("400x300+300+300")
         self.master.title("Finding-Selector")
-        self.finding = dict()
         self.proof_selectors = dict()
         self.proof_count = 0
 
         self.init_ui()
+
+        if self.finding:
+            self.fill_finding()
+
+        self.proof_selectors[self.proof_count]=ProofSelector(self.frame_proofs)
+
         super().__init__()
 
     def init_ui(self):
@@ -191,6 +205,9 @@ class FindingWindow():
         self.frame_footer = Frame(self.master)
         self.frame_footer.pack(side=BOTTOM)
 
+        self.entry_name_text =  StringVar()
+        self.entry_description_text = StringVar()
+
         row = 1
         first_column_width = 15
         second_column_width = 40
@@ -198,43 +215,63 @@ class FindingWindow():
         lbl_name = Label(self.frame, text="Name", width=first_column_width)
         lbl_name.grid(row=row, column=0, padx=10)
 
-        self.entry_name = Entry(self.frame, width=second_column_width)
+        self.entry_name = Entry(self.frame, text=self.entry_name_text, width=second_column_width)
         self.entry_name.grid(row=row, column=1)
 
         row += 1
         lbl_description = Label(self.frame, text="Description", width=first_column_width)
         lbl_description.grid(row=row, column=0, padx=10)
 
-        self.entry_description = Entry(self.frame, width=second_column_width)
+        self.entry_description = Entry(self.frame, text=self.entry_description_text, width=second_column_width)
         self.entry_description.grid(row=row, column=1)
 
-        self.proof_selectors[self.proof_count]=ProofSelector(self.frame_proofs)
 
         bttn_add_more_proof = Button(self.frame_proofs_footer, text="AddProof", command=self.add_more_proof)
         bttn_add_more_proof.pack(padx=5, pady=5)
 
-        bttn_create_finding = Button(self.frame_footer, text="Create", command=self.create_incidence)
+        if self.finding:
+            bttn_create_finding_text = "Update"
+        else:
+            bttn_create_finding_text = "Create"
+
+        bttn_create_finding = Button(self.frame_footer, text=bttn_create_finding_text, command=self.commit_incidence)
         bttn_create_finding.pack(side=BOTTOM, padx=5, pady=5)
 
-    def add_more_proof(self):
+    def fill_finding(self):
+        print(self.finding)
+        self.entry_name_text.set(self.finding.name)
+        self.entry_description_text.set(self.finding.description)
+        for proof in self.finding.proofs:
+            print(proof)
+            self.add_more_proof(proof)
+
+    def add_more_proof(self, proof=None):
         self.proof_count+=1
-        self.proof_selectors[self.proof_count]=ProofSelector(self.frame_proofs)
+        self.proof_selectors[self.proof_count]=ProofSelector(self.frame_proofs, proof)
 
 
-    def create_incidence(self):
+    def commit_incidence(self):
         active_proofs = list()
         for proof_key in self.proof_selectors.keys():
             if self.proof_selectors[proof_key].active and self.proof_selectors[proof_key].proof:
                 active_proofs.append(self.proof_selectors[proof_key].proof)
-
+        print("this is the active proofs")
         print(active_proofs)
+        if not self.finding:
+            new_finding = Finding(name=self.entry_name.get(),
+                                  description=self.entry_description.get(),
+                                  proofs=active_proofs)
 
-        new_finding = Finding(name=self.entry_name.get(),
-                              description=self.entry_description.get(),
-                              proofs=active_proofs)
+            project.findings.append(new_finding)
+        else:
+            self.finding.name = self.entry_name.get()
+            self.finding.description = self.entry_description.get()
+            self.finding.proofs.extend(active_proofs)
+            print("finding already existing, updated?")
 
-        project.findings.append(new_finding)
+
         db.commit_changes()
+
         global app
         app.update_findings()
         self.master.destroy()
@@ -242,14 +279,19 @@ class FindingWindow():
 
 class ProofSelector:
 
-    def __init__(self, frame):
+    def __init__(self, frame, proof=None):
         self.frame = frame
+        self.proof = proof
         self.active = True
+        self.modified = False
 
         self.init_ui()
 
+        if self.proof:
+            self.fill_proof()
+
     def init_ui(self):
-        self.proof = None
+
         self.frame_single_proof = Frame(self.frame, bg='white')
         self.frame_single_proof.pack(side=TOP, fill=X)
 
@@ -257,12 +299,17 @@ class ProofSelector:
         self.entry_filepath = Entry(self.frame_single_proof, textvariable=self.filepath_value)
         self.entry_filepath.pack(side=LEFT, expand=True, fill=X)
 
+        if self.proof:
+            self.entry_filepath.configure(state='readonly')
+
         bttn_select_file = Button(self.frame_single_proof, text="Add File", command=self.select_file)
         bttn_select_file.pack(side=LEFT)
 
         bttn_delette_file = Button(self.frame_single_proof, text="Delete File", command=self.delete_file)
         bttn_delette_file.pack(side=LEFT)
 
+    def fill_proof(self):
+        self.filepath_value.set(self.proof.path)
 
     def select_file(self):
         file_path = filedialog.askopenfilename(parent=self.frame, initialdir="/", title="Select file")
@@ -279,19 +326,28 @@ class ProofSelector:
                                      "the file extension {} is not suported, sorry :(".format(file_ext))
                 return
 
-            new_proof = Proof(path=file_path,
-                              type=proof_type)
+            if self.proof:
+                self.proof.path = file_path
+                self.proof.type = proof_type
+                self.modified = True
 
-            self.proof = new_proof
-            self.filepath_value.set(file_path)
+            else:
+                new_proof = Proof(path=file_path,
+                                  type=proof_type)
+
+                self.proof = new_proof
+
+            self.filepath_value.set(self.proof.path)
 
         else:
             messagebox.showinfo('Info', 'No folder was selected')
 
     def delete_file(self):
-        # if self.id != 0:
-            self.active = False
-            self.frame_single_proof.destroy()
+        if self.proof or self.modified:
+            db.delete(self.proof)
+
+        self.active = False
+        self.frame_single_proof.destroy()
 
 def main():
     global app
