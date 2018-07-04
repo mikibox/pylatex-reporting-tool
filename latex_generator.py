@@ -4,7 +4,6 @@ from pylatex.utils import italic, NoEscape
 import os
 
 def add_proof(doc, proof, exported_path=None):
-    print(exported_path)
     if proof.type.name == 'text':
         if exported_path:
             doc.append(NoEscape(r'\lstinputlisting{' + exported_path.replace('\\','/') + '}'))
@@ -34,9 +33,7 @@ def add_finding(doc, finding):
             project_path = os.path.join('projects', str(finding.project_id))
             relative_path = os.path.join(str(finding.id), str(proof.id) + os.path.splitext(proof.path)[-1])
             absolute_path = os.path.join(project_path, relative_path)
-            print(absolute_path, relative_path)
             if os.path.exists(absolute_path):
-                print("path exists!!!")
                 add_proof(doc,proof, relative_path)
 
         # with doc.create(Subsection('A subsection')):
@@ -93,9 +90,9 @@ def generate_report(project):
         # fill_document(doc)
 
     doc.generate_tex()
-    doc.generate_pdf(clean=True, clean_tex=False, silent=False, compiler_args=['-f'])
+    # doc.generate_pdf(clean=True, clean_tex=False, silent=True, compiler_args=['-f'])
 
-    tex = doc.dumps()  # The document as string in LaTeX syntax
+    # tex = doc.dumps()  # The document as string in LaTeX syntax
 
 
 if __name__ == '__main__':
