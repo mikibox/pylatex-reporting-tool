@@ -3,3 +3,6 @@ evidences
 database
 venv
 *.spec
+projects
+__pycache__
+test*
