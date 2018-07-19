@@ -13,7 +13,9 @@ import shutil
 app = None
 project = None
 
-
+DATABASE_NAME = 'db_tests'
+db.create_database(DATABASE_NAME)
+db.populate_database(DATABASE_NAME)
 
 
 def export_project():

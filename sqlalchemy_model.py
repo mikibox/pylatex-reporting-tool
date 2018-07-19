@@ -74,12 +74,19 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 
-def create_database():
+def create_database(database):
     from sqlalchemy import create_engine
-    engine = create_engine('sqlite:///database/my_db_tests.sqlite', echo=False)
+    if database:
+        engine = create_engine('sqlite:///database/{}.sqlite'.format(database), echo=False)
+    else:
+        print("No database selected")
+        print("Could not create database successfully")
+        return
+
     Base.metadata.create_all(engine)
+    print("databse created")
 
 
 
 if __name__ == '__main__':
-    create_database()
+    pass

@@ -10,9 +10,7 @@ from sqlalchemy_model import Proof, ProofType, Finding, Project, create_database
 from datetime import datetime
 import os
 
-engine = create_engine('sqlite:///database/my_db_tests.sqlite', echo=False)
-Session = sessionmaker(bind=engine)
-session = Session()
+session = None
 
 
 @event.listens_for(Engine, "connect")
@@ -65,14 +63,24 @@ def get_all_projects():
     return session.query(Project).all()
 
 
-if not os.path.exists('/database/my_db_tests.sqlite'):
-    create_database()
+def populate_database(database='db'):
+    global session
+    engine = create_engine('sqlite:///database/{}.sqlite'.format(database), echo=False)
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
-    proof_types = ['text', 'image', 'other']
-    for proof_type in proof_types:
-        if not get_proof_type_by_name(proof_type):
-            create(ProofType(name=proof_type))
-    commit_changes()
+
+    if not os.path.exists('/database/{}.sqlite'.format(database)):
+        print('Database selected does not exist. Create it first')
+        return
+    else:
+        proof_types = ['text', 'image', 'other']
+        for proof_type in proof_types:
+            if not get_proof_type_by_name(proof_type):
+                create(ProofType(name=proof_type))
+        commit_changes()
+        print('Database successfully populated')
+
 
 # proof1 = Proof(type=get_proof_type_by_name('text'),
 #                path='/root/Desktop/test.txt')
