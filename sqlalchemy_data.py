@@ -6,7 +6,7 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_model import Proof, ProofType, Finding, Project, create_database
+from sqlalchemy_model import Proof, ProofType, Finding, Project
 from datetime import datetime
 import os
 
@@ -70,7 +70,7 @@ def populate_database(database='db'):
     session = Session()
 
 
-    if not os.path.exists('/database/{}.sqlite'.format(database)):
+    if not os.path.exists('database/{}.sqlite'.format(database)):
         print('Database selected does not exist. Create it first')
         return
     else:

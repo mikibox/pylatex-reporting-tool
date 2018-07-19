@@ -4,7 +4,7 @@ from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, RIGHT, messageb
     StringVar, Frame
 from tkinter.ttk import Label, Entry, Combobox, Button, Labelframe
 import sqlalchemy_data as db
-from sqlalchemy_model import Proof, Finding, Project
+from sqlalchemy_model import Proof, Finding, Project, create_database
 import latex_generator
 import os
 import sys
@@ -13,8 +13,8 @@ import shutil
 app = None
 project = None
 
-DATABASE_NAME = 'db_tests'
-db.create_database(DATABASE_NAME)
+DATABASE_NAME = 'db'
+create_database(DATABASE_NAME)
 db.populate_database(DATABASE_NAME)
 
 
