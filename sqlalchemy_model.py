@@ -24,8 +24,10 @@ class Finding(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
     created_at = Column(DateTime, default=datetime.utcnow)
-    file_path = Column(String(1000))
+    affected_item = Column(String(500))
     description = Column(String(3000))
+    resolution = Column(String(3000))
+    severity = Column(Integer)
     order = Column(Integer)
     project_id = Column(Integer, ForeignKey('project.id'), nullable=False)
     proofs = relationship('Proof')
@@ -80,4 +82,4 @@ def create_database():
 
 
 if __name__ == '__main__':
-    pass
+    create_database()
