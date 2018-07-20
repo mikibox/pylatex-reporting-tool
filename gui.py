@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from tkinter import Tk, Text, TOP, BOTH, X, Y, N, S, W, E, LEFT, RIGHT, messagebox, BOTTOM, Toplevel, filedialog, \
-    StringVar, Frame
+    StringVar, Frame, END
 from tkinter.ttk import Label, Entry, Combobox, Button, Labelframe
 import sqlalchemy_data as db
 from sqlalchemy_model import Proof, Finding, Project, create_database
@@ -208,6 +208,7 @@ class FindingWindow():
         self.frame_footer.pack(side=BOTTOM)
 
         self.entry_name_text =  StringVar()
+        self.entry_affected_item_text = StringVar()
         self.entry_description_text = StringVar()
 
         row = 1
@@ -224,7 +225,7 @@ class FindingWindow():
         lbl_affected_item = Label(self.frame, text="Affected item", width=first_column_width)
         lbl_affected_item.grid(row=row, column=0, padx=10, sticky=W + N)
 
-        self.entry_affected_item = Entry(self.frame, text=self.entry_name_text, width=second_column_width)
+        self.entry_affected_item = Entry(self.frame, text=self.entry_affected_item_text, width=second_column_width)
         self.entry_affected_item.grid(row=row, column=1, sticky=W + N)
 
         row += 1
@@ -261,7 +262,7 @@ class FindingWindow():
         else:
             bttn_create_finding_text = "Create"
 
-        bttn_create_finding = Button(self.frame_footer, text=bttn_create_finding_text, command=self.commit_incidence)
+        bttn_create_finding = Button(self.frame_footer, text=bttn_create_finding_text, command=self.commit_finding)
         bttn_create_finding.pack(side=BOTTOM, padx=5, pady=5)
 
     def fill_finding(self):
@@ -277,7 +278,7 @@ class FindingWindow():
         self.proof_selectors[self.proof_count]=ProofSelector(self.frame_proofs, proof)
 
 
-    def commit_incidence(self):
+    def commit_finding(self):
         active_proofs = list()
         for proof_key in self.proof_selectors.keys():
             if self.proof_selectors[proof_key].active and self.proof_selectors[proof_key].proof:
@@ -285,8 +286,12 @@ class FindingWindow():
         print("this is the active proofs")
         print(active_proofs)
         if not self.finding:
+            print(self.entry_description.get('1.0', END))
             new_finding = Finding(name=self.entry_name.get(),
-                                  description=self.entry_description.get(),
+                                  affected_item=self.entry_affected_item.get(),
+                                  description=self.entry_description.get('1.0',END),
+                                  resolution=self.entry_resolution.get('1.0',END),
+                                  severity=self.severity_cmbx.get(),
                                   proofs=active_proofs)
 
             project.findings.append(new_finding)
