@@ -183,7 +183,7 @@ class FindingWindow():
     def __init__(self, master, finding=None):
         self.master = master
         self.finding = finding
-        self.master.geometry("400x300+300+300")
+        self.master.geometry("600x400+400+400")
         self.master.title("Finding-Selector")
         self.proof_selectors = dict()
         self.proof_count = 0
@@ -211,21 +211,25 @@ class FindingWindow():
         self.entry_description_text = StringVar()
 
         row = 1
-        first_column_width = 15
-        second_column_width = 40
+        first_column_width = 20
+        second_column_width = 60
 
         lbl_name = Label(self.frame, text="Name", width=first_column_width)
-        lbl_name.grid(row=row, column=0, padx=10)
+        lbl_name.grid(row=row, column=0, padx=10, sticky=W+N)
 
         self.entry_name = Entry(self.frame, text=self.entry_name_text, width=second_column_width)
-        self.entry_name.grid(row=row, column=1)
+        self.entry_name.grid(row=row, column=1, sticky=W+N)
 
         row += 1
-        lbl_description = Label(self.frame, text="Description", width=first_column_width)
-        lbl_description.grid(row=row, column=0, padx=10)
+        lbl_description = Label(self.frame, text="Technical Description", width=first_column_width)
+        lbl_description.grid(row=row, column=0, padx=10, sticky=W+N)
 
-        self.entry_description = Entry(self.frame, text=self.entry_description_text, width=second_column_width)
-        self.entry_description.grid(row=row, column=1)
+        # self.entry_description = Entry(self.frame, text=self.entry_description_text, width=second_column_width)
+        # self.entry_description.grid(row=row, column=1)
+        self.entry_description = Text(self.frame, width=second_column_width-10, height=3)
+        self.entry_description.grid(row=row, column=1, sticky=W+N)
+
+
 
 
         bttn_add_more_proof = Button(self.frame_proofs_footer, text="AddProof", command=self.add_more_proof)
