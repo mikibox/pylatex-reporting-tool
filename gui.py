@@ -221,7 +221,22 @@ class FindingWindow():
         self.entry_name.grid(row=row, column=1, sticky=W+N)
 
         row += 1
-        lbl_description = Label(self.frame, text="Technical Description", width=first_column_width)
+        lbl_affected_item = Label(self.frame, text="Affected item", width=first_column_width)
+        lbl_affected_item.grid(row=row, column=0, padx=10, sticky=W + N)
+
+        self.entry_affected_item = Entry(self.frame, text=self.entry_name_text, width=second_column_width)
+        self.entry_affected_item.grid(row=row, column=1, sticky=W + N)
+
+        row += 1
+        lbl_severity = Label(self.frame, text="Severity", width=first_column_width)
+        lbl_severity.grid(row=row, column=0, padx=10, sticky=W + N)
+
+        self.severity_cmbx = Combobox(self.frame)
+        self.severity_cmbx['values'] = [x for x in range(5)]
+        self.severity_cmbx.grid(row=row, column=1, sticky=W + N)
+
+        row += 1
+        lbl_description = Label(self.frame, text="Description", width=first_column_width)
         lbl_description.grid(row=row, column=0, padx=10, sticky=W+N)
 
         # self.entry_description = Entry(self.frame, text=self.entry_description_text, width=second_column_width)
@@ -229,6 +244,12 @@ class FindingWindow():
         self.entry_description = Text(self.frame, width=second_column_width-10, height=3)
         self.entry_description.grid(row=row, column=1, sticky=W+N)
 
+        row += 1
+        lbl_resolution = Label(self.frame, text="Resolution", width=first_column_width)
+        lbl_resolution.grid(row=row, column=0, padx=10, sticky=W + N)
+
+        self.entry_resolution = Text(self.frame, width=second_column_width - 10, height=3)
+        self.entry_resolution.grid(row=row, column=1, sticky=W + N)
 
 
 
