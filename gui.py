@@ -209,7 +209,6 @@ class FindingWindow():
 
         self.entry_name_text =  StringVar()
         self.entry_affected_item_text = StringVar()
-        self.entry_description_text = StringVar()
 
         row = 1
         first_column_width = 20
@@ -268,7 +267,11 @@ class FindingWindow():
     def fill_finding(self):
         print(self.finding)
         self.entry_name_text.set(self.finding.name)
-        self.entry_description_text.set(self.finding.description)
+        self.entry_affected_item_text.set(self.finding.affected_item)
+        self.entry_description.insert('1.0',self.finding.description)
+        self.entry_resolution.insert('1.0', self.finding.resolution)
+        self.severity_cmbx.set(self.finding.severity)
+
         for proof in self.finding.proofs:
             print(proof)
             self.add_more_proof(proof)
@@ -295,12 +298,15 @@ class FindingWindow():
                                   proofs=active_proofs)
 
             project.findings.append(new_finding)
+            print("creating new finding")
         else:
             self.finding.name = self.entry_name.get()
-            self.finding.description = self.entry_description.get()
+            self.finding.description = self.entry_description.get('1.0',END)
+            self.finding.resolution = self.entry_resolution.get('1.0', END)
+            self.finding.severity = self.severity_cmbx.get()
+            self.finding.affected_item = self.entry_affected_item.get()
             self.finding.proofs.extend(active_proofs)
-            print("finding already existing, updated?")
-
+            print("updating finding")
 
         db.commit_changes()
 
